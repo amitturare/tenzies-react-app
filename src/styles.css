@@ -113,8 +113,14 @@ main {
 .active {
     background: #59E391;
 }
-
-
+.results {
+    display: flex;
+    gap: 2rem;
+}
+.results-time {
+    display: flex;
+    gap: 5px;
+}
 
 .roll-btn {
     cursor: pointer;

@@ -24,10 +24,10 @@ export default function App() {
     function checkNumbers(arr) {
         return arr.every((item) => item.value === arr[0].value && item.isHeld);
     }
-
     useEffect(() => {
         if (checkNumbers(diceArr)) {
             setTenzies(true);
+            setRunning(false);
         }
     }, [diceArr]);
 
@@ -62,6 +62,7 @@ export default function App() {
             setDiceArr(newDiceArr());
             setTenzies(false);
             setTotalRolls(0);
+            setTime(0);
         }
     }
 
@@ -70,6 +71,8 @@ export default function App() {
         setDiceArr((oldArr) =>
             oldArr.map((die) => {
                 if (id === die.id) {
+                    // Start Timer
+                    setRunning(true);
                     return { ...die, isHeld: !die.isHeld };
                 } else {
                     return die;
@@ -77,18 +80,50 @@ export default function App() {
             })
         );
     }
+
+    // For Stopwatch
+    const [time, setTime] = useState(0);
+    const [running, setRunning] = useState(false);
+
+    useEffect(() => {
+        let interval = null;
+
+        if (running) {
+            interval = setInterval(() => {
+                setTime((prevTime) => prevTime + 10);
+            }, 10);
+        } else {
+            clearInterval(interval);
+        }
+
+        return () => clearInterval(interval);
+    }, [running]);
+
     return (
         <main>
             {tenzies && <Confetti />}
             <h1 className="title">Tenzies</h1>
             <p className="instructions">
-                {tenzies
-                    ? "You Win!"
-                    : "Roll until all dice are the same. Click each die to freeze it at its current value between rolls."}
+                Roll until all dice are the same. Click each die to freeze it at
+                its current value between rolls.
             </p>
             <div className="dice-container">{diceElements}</div>
 
-            <p className="total-rolls">Total Rolls: {totalRolls}</p>
+            <div className="results">
+                <p className="total-rolls">Total Rolls: {totalRolls}</p>
+                <div className="results-time">
+                    <p>Time:</p>
+                    <div>
+                        <span>
+                            {("0" + Math.floor((time / 60000) % 60)).slice(-2)}:
+                        </span>
+                        <span>
+                            {("0" + Math.floor((time / 1000) % 60)).slice(-2)}:
+                        </span>
+                        <span>{("0" + ((time / 10) % 100)).slice(-2)}</span>
+                    </div>
+                </div>
+            </div>
 
             <button className="roll-btn" onClick={roll}>
                 {tenzies ? "Play Again!" : "Roll"}
